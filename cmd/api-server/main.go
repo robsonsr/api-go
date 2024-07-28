@@ -21,10 +21,13 @@ func main() {
 
 	//Camada de Repository
 	ProductRepository := repository.NewProductRepository(dbConnection)
+
 	//Camada de UseCase
-	ProductUseCase := usecase.NewProductUseCase(ProductRepository)
+	GetProductsUseCase := usecase.NewGetProductsUseCase(ProductRepository)
+	CreateProductUseCase := usecase.NewCreateProductsUseCase(ProductRepository)
+
 	//Camada de controllers
-	ProductController := controller.NewProductController(ProductUseCase)
+	ProductController := controller.NewProductController(GetProductsUseCase, CreateProductUseCase)
 
 	server.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, map[string]string{
@@ -33,6 +36,7 @@ func main() {
 	})
 
 	server.GET("/products", ProductController.GetProducts)
+	server.POST("/products", ProductController.CreateProduct)
 
 	server.Run(":8000")
 }

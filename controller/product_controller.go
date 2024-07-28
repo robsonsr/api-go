@@ -10,18 +10,20 @@ import (
 )
 
 type productController struct {
-	productUseCase usecase.ProductUseCase
+	getProductsUseCase   usecase.GetProductsUseCase
+	createProductUseCase usecase.CreateProductUseCase
 }
 
-func NewProductController(productUseCase usecase.ProductUseCase) productController {
+func NewProductController(getProductsUseCase usecase.GetProductsUseCase, createProductUseCase usecase.CreateProductUseCase) productController {
 	return productController{
-		productUseCase,
+		getProductsUseCase,
+		createProductUseCase,
 	}
 }
 
 func (p *productController) GetProducts(ctx *gin.Context) {
 
-	products, err := p.productUseCase.GetProducts()
+	products, err := p.getProductsUseCase.GetProducts()
 
 	fmt.Println(err)
 
@@ -31,4 +33,25 @@ func (p *productController) GetProducts(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, products)
+}
+
+func (p *productController) CreateProduct(ctx *gin.Context) {
+	var product model.Product
+
+	err := ctx.BindJSON(&product)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, model.NewBadRequestError(err.Error()))
+		return
+	}
+
+	createdProduct, err := p.createProductUseCase.CreateProduct(product)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, model.NewInternalServerError(err.Error()))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, createdProduct)
+
 }

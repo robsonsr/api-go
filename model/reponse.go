@@ -12,3 +12,11 @@ func NewInternalServerError(details string) ResponseError {
 	}
 	return reponseError
 }
+
+func NewBadRequestError(details string) ResponseError {
+	reponseError := ResponseError{
+		Message: "Os dados enviados são inválidos.",
+		Details: details,
+	}
+	return reponseError
+}
